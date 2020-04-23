@@ -2,13 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Task;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
+use Storage;
 
 class TaskController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -16,35 +25,49 @@ class TaskController extends Controller
      */
     public function index()
     {
-        return view('tasks.index');
+        $tasks = Task::all();
+        return view('tasks.index',compact('tasks'));
     }
 
     /**
      * Show the form for creating a new resource.
      *
-     * @return Response
+     * @return Factory|View
      */
     public function create()
     {
-        //
+        return view('tasks.create');
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param Request $request
-     * @return void
+     * @return RedirectResponse|Redirector
      */
     public function store(Request $request)
     {
-        //
+        //dd('Your data will be stored soon...');
+
+        $task = new Task();
+        $task->title = $request->title;
+        $task->body = $request->body;
+
+        if ($request->file('img')) {
+            $path = Storage::putFile('public', $request->file('img'));
+            $url = Storage::url($path);
+            $task->img = $url;
+        }
+
+        $task->save();
+        return redirect('/');
     }
 
     /**
      * Display the specified resource.
      *
      * @param int $id
-     * @return Response
+     * @return void
      */
     public function show($id)
     {

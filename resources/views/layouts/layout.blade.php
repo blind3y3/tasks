@@ -20,7 +20,7 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+<nav class="navbar  navbar-expand-md navbar-dark bg-dark shadow-sm mb-3">
     <div class="container">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
@@ -30,7 +30,14 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <!-- Left Side Of Navbar -->
             <ul class="navbar-nav mr-auto">
-                <a class="nav-link" href="{{ url('/') }}">{{ __('Home') }}</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('index') }}">{{ __('Home') }}</a>
+                </li>
+                @if(Auth::check())
+                    <li class="nav-item ml-lg-5">
+                        <a class="nav-link" href="{{ route('create') }}">{{ __('Create task') }}</a>
+                    </li>
+                @endif
             </ul>
 
             <!-- Right Side Of Navbar -->

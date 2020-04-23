@@ -14,8 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', 'TaskController@index')->name('index');
-
+Route::get('/create', 'TaskController@create')->name('create');
+Route::post('/','TaskController@store')->name('store');
 
 Auth::routes();
-
-Route::get('/home', 'HomeController@index')->name('home');
