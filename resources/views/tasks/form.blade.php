@@ -11,3 +11,10 @@
 <div class="form-group">
     <input type="file" class="form-control-file border" name="attachment">
 </div>
+
+@if(request()->is('*/edit'))
+    <div class="form-group">
+        <label for="body">Answer:</label>
+        <textarea class="form-control" name="answer" cols="40" rows="4"></textarea>
+    </div>
+@endif

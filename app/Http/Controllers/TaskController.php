@@ -6,8 +6,6 @@ use App\Http\Requests\TaskRequest;
 use App\Task;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 use Storage;
@@ -106,7 +104,6 @@ class TaskController extends Controller
         $task->isWatched = $request->has('isWatched');
         $task->isAnswered = $request->has('isAnswered');
 
-
         if ($request->file('attachment')) {
             $path = Storage::putFile('public', $request->file('attachment'));
             $url = Storage::url($path);
@@ -121,10 +118,12 @@ class TaskController extends Controller
      * Remove the specified resource from storage.
      *
      * @param int $id
-     * @return Response
+     * @return RedirectResponse|Redirector
      */
     public function destroy($id)
     {
-        //
+        $task = Task::findOrFail($id);
+        $task->delete();
+        return redirect('/');
     }
 }

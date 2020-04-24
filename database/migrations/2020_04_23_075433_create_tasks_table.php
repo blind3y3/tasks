@@ -19,6 +19,7 @@ class CreateTasksTable extends Migration
             $table->string('attachment')->nullable();
             $table->string('title');
             $table->text('body');
+            $table->text('answer')->nullable();
             $table->boolean('isOpened')->default(false);
             $table->boolean('isWatched')->default(false);
             $table->boolean('isAnswered')->default(false);
