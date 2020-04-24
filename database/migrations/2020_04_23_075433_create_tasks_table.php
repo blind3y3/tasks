@@ -15,13 +15,13 @@ class CreateTasksTable extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            //$table->string('author');
-
+            $table->string('author');
+            $table->string('attachment')->nullable();
             $table->string('title');
             $table->text('body');
-            $table->boolean('isOpened')->nullable();
-            $table->boolean('isWatched')->nullable();
-            $table->boolean('isAnswered')->nullable();
+            $table->boolean('isOpened')->default(false);
+            $table->boolean('isWatched')->default(false);
+            $table->boolean('isAnswered')->default(false);
             $table->timestamps();
         });
     }

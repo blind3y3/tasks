@@ -16,5 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', 'TaskController@index')->name('index');
 Route::get('/create', 'TaskController@create')->name('create');
 Route::post('/','TaskController@store')->name('store');
+Route::get('/show/{id}', 'TaskController@show')->name('show');
+Route::get('/show/{id}/edit', 'TaskController@edit')->name('edit');
+Route::patch('/show/{id}', 'TaskController@update')->name('update');
 
 Auth::routes();

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TaskRequest;
 use App\Task;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
@@ -10,6 +11,7 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 use Storage;
+use Auth;
 
 class TaskController extends Controller
 {
@@ -26,7 +28,7 @@ class TaskController extends Controller
     public function index()
     {
         $tasks = Task::all();
-        return view('tasks.index',compact('tasks'));
+        return view('tasks.index', compact('tasks'));
     }
 
     /**
@@ -42,21 +44,21 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
+     * @param TaskRequest $request
      * @return RedirectResponse|Redirector
      */
-    public function store(Request $request)
+    public function store(TaskRequest $request)
     {
-        //dd('Your data will be stored soon...');
 
         $task = new Task();
         $task->title = $request->title;
         $task->body = $request->body;
+        $task->author = Auth::user()->name;
 
-        if ($request->file('img')) {
-            $path = Storage::putFile('public', $request->file('img'));
+        if ($request->file('attachment')) {
+            $path = Storage::putFile('public', $request->file('attachment'));
             $url = Storage::url($path);
-            $task->img = $url;
+            $task->attachment = $url;
         }
 
         $task->save();
@@ -67,34 +69,52 @@ class TaskController extends Controller
      * Display the specified resource.
      *
      * @param int $id
-     * @return void
+     * @return Factory|View
      */
     public function show($id)
     {
-        //
+        $task = Task::findOrFail($id);
+        return view('tasks.show', compact('task'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
      * @param int $id
-     * @return Response
+     * @return Factory|View
      */
     public function edit($id)
     {
-        //
+        $task = Task::findOrFail($id);
+        return view('tasks.edit', compact('task'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
+     * @param TaskRequest $request
      * @param int $id
-     * @return Response
+     * @return RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(TaskRequest $request, $id)
     {
-        //
+        $task = Task::findOrFail($id);
+        $task->title = $request->title;
+        $task->body = $request->body;
+
+        $task->isOpened = $request->has('isOpened');
+        $task->isWatched = $request->has('isWatched');
+        $task->isAnswered = $request->has('isAnswered');
+
+
+        if ($request->file('attachment')) {
+            $path = Storage::putFile('public', $request->file('attachment'));
+            $url = Storage::url($path);
+            $task->attachment = $url;
+        }
+        $task->update();
+
+        return redirect()->route('show', ['id' => $id]);
     }
 
     /**
