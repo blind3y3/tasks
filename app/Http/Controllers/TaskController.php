@@ -30,7 +30,12 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = Task::all();
+        $tasks = Task::orderBy('id', 'DESC')->get();
+
+        if (!empty($_GET['sortBy'])){
+            $tasks = Task::orderBy($_GET['sortBy'], 'DESC')->get();
+        }
+
         return view('tasks.index', compact('tasks'));
     }
 

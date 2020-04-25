@@ -1,7 +1,18 @@
 @extends('layouts.layout')
 @section('content')
     @if(Auth::user()->isManager)
-        {{--            <p>Информация для менеджера</p>--}}
+        <div class="col-md-12 mb-2">
+            <div class="dropdown">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    Sort order:
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="?sortBy=isOpened">By opened</a>
+                    <a class="dropdown-item" href="?sortBy=isWatched">By watched</a>
+                    <a class="dropdown-item" href="?sortBy=isAnswered">By answered</a>
+                </div>
+            </div>
+        </div>
     @endif
     @foreach($tasks as $task)
         @if(Auth::user()->isManager || Auth::user()->name == $task->author)
