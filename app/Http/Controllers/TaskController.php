@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TaskRequest;
 use App\Mail\AnsweredTaskMail;
+use App\Mail\ClosedTaskMail;
+use App\Mail\AnswerNotificationForManager;
+use App\Mail\ClosingNotificationForManager;
 use App\Task;
 use App\User;
 use Illuminate\Contracts\View\Factory;
@@ -13,8 +16,6 @@ use Illuminate\View\View;
 use Storage;
 use Auth;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\WelcomeMail;
-use App\Mail\ClosedTaskMail;
 use DateTime;
 
 class TaskController extends Controller
@@ -128,6 +129,7 @@ class TaskController extends Controller
         $task->body = $request->body;
 
         $receiver = User::findOrFail($task->author_id);
+        $manager = User::select('email')->where('isManager', 1)->get()[0]['email'];
 
         $task->isOpened = $request->has('isOpened');
         $task->isWatched = $request->has('isWatched');
@@ -143,6 +145,7 @@ class TaskController extends Controller
             $task->answer = $request->answer;
             if ($request->answer != old($task->answer)) {
                 Mail::to($receiver->email)->send(new AnsweredTaskMail($receiver, $task));
+                Mail::to($manager)->send(new AnswerNotificationForManager($task));
             }
         }
 
@@ -163,7 +166,10 @@ class TaskController extends Controller
         $task->delete();
 
         $receiver = User::findOrFail($task->author_id);
+        $manager = User::select('email')->where('isManager', 1)->get()[0]['email'];
+
         Mail::to($receiver->email)->send(new ClosedTaskMail($receiver, $task));
+        Mail::to($manager)->send(new ClosingNotificationForManager($task));
 
         return redirect('/');
     }
