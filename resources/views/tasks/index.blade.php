@@ -10,10 +10,18 @@
                 <p><i>Created by: {{$task->author}}</i></p>
                 <p>{{$task->body}}</p>
                 @include('tasks.checkboxes')
+
+                @if($task->answer)
+                    <h4>Answer on your task:</h4>
+                    <div class="answer">
+                        <p>{{$task->answer}}</p>
+                    </div>
+                @endif
+
                 <div class="btn-group mt-2">
                     <a class="btn btn-primary" href="{{ route('show', ['id' => $task->id]) }}">Show task</a>
                     <a class="btn btn-primary" href="{{ route('edit', ['id' => $task->id]) }}">Update task</a>
-                    @if(!empty($task->attachment))
+                    @if($task->attachment)
                         <a class="btn btn-outline-primary" href="{{$task->attachment}}" download>Attachment</a>
                     @endif
                 </div>

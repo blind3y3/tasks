@@ -3,13 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TaskRequest;
+use App\Mail\AnsweredTaskMail;
 use App\Task;
+use App\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 use Storage;
 use Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeMail;
+use App\Mail\ClosedTaskMail;
 
 class TaskController extends Controller
 {
@@ -52,6 +57,7 @@ class TaskController extends Controller
         $task->title = $request->title;
         $task->body = $request->body;
         $task->author = Auth::user()->name;
+        $task->author_id = Auth::user()->id;
 
         if ($request->file('attachment')) {
             $path = Storage::putFile('public', $request->file('attachment'));
@@ -71,6 +77,7 @@ class TaskController extends Controller
      */
     public function show($id)
     {
+
         $task = Task::findOrFail($id);
         return view('tasks.show', compact('task'));
     }
@@ -100,6 +107,8 @@ class TaskController extends Controller
         $task->title = $request->title;
         $task->body = $request->body;
 
+        $receiver = User::findOrFail($task->author_id);
+
         $task->isOpened = $request->has('isOpened');
         $task->isWatched = $request->has('isWatched');
         $task->isAnswered = $request->has('isAnswered');
@@ -109,6 +118,14 @@ class TaskController extends Controller
             $url = Storage::url($path);
             $task->attachment = $url;
         }
+
+        if ($request->has('answer')){
+            $task->answer = $request->answer;
+            if ($request->answer != old($task->answer)){
+                Mail::to($receiver->email)->send(new AnsweredTaskMail($receiver, $task));
+            }
+        }
+
         $task->update();
 
         return redirect()->route('show', ['id' => $id]);
@@ -124,6 +141,10 @@ class TaskController extends Controller
     {
         $task = Task::findOrFail($id);
         $task->delete();
+
+        $receiver = User::findOrFail($task->author_id);
+        Mail::to($receiver->email)->send(new ClosedTaskMail($receiver, $task));
+
         return redirect('/');
     }
 }

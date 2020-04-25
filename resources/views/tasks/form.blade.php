@@ -14,7 +14,7 @@
 
 @if(request()->is('*/edit'))
     <div class="form-group">
-        <label for="body">Answer:</label>
-        <textarea class="form-control" name="answer" cols="40" rows="4"></textarea>
+        <label for="answer">Answer:</label>
+        <textarea {{empty($task->answer) ? '' : 'disabled'}} class="form-control" name="answer" cols="40" rows="4">{{old('answer') ?? $task->answer ?? ''}}</textarea>
     </div>
 @endif
