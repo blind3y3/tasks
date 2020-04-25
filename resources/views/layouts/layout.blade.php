@@ -18,6 +18,7 @@
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+
 </head>
 <body>
 
@@ -44,7 +45,7 @@
 
             <!-- Right Side Of Navbar -->
             <ul class="navbar-nav ml-auto">
-            <!-- Authentication Links -->
+                <!-- Authentication Links -->
                 @guest
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
@@ -80,9 +81,16 @@
 </nav>
 
 <div class="container">
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show " role="alert">
+            {{session('error')}}
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+    @endif
     <div class="row">
         @yield('content')
     </div>
 </div>
+
 </body>
 </html>

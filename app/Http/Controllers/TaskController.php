@@ -15,6 +15,7 @@ use Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\WelcomeMail;
 use App\Mail\ClosedTaskMail;
+use DateTime;
 
 class TaskController extends Controller
 {
@@ -30,9 +31,10 @@ class TaskController extends Controller
      */
     public function index()
     {
+
         $tasks = Task::orderBy('id', 'DESC')->get();
 
-        if (!empty($_GET['sortBy'])){
+        if (!empty($_GET['sortBy'])) {
             $tasks = Task::orderBy($_GET['sortBy'], 'DESC')->get();
         }
 
@@ -63,6 +65,19 @@ class TaskController extends Controller
         $task->body = $request->body;
         $task->author = Auth::user()->name;
         $task->author_id = Auth::user()->id;
+
+        //check if user have tasks
+        if (Task::select('created_at')->where('author_id', Auth::id())->count() > 0) {
+            $lastUserRecord = Task::select('created_at')->where('author_id', Auth::id());
+            $lastRecordDate = new DateTime($lastUserRecord->latest()->first()->created_at);
+            $currentDate = new DateTime(date('Y-m-d H:i:s'));
+
+            $difference = $lastRecordDate->diff($currentDate)->d; //get difference (in days) between 2 dates
+
+            if ($difference < 1) {
+                return redirect('/')->with('error', 'You can create only one task per day. Please, try tomorrow.');
+            }
+        }
 
         if ($request->file('attachment')) {
             $path = Storage::putFile('public', $request->file('attachment'));
@@ -124,9 +139,9 @@ class TaskController extends Controller
             $task->attachment = $url;
         }
 
-        if ($request->has('answer')){
+        if ($request->has('answer')) {
             $task->answer = $request->answer;
-            if ($request->answer != old($task->answer)){
+            if ($request->answer != old($task->answer)) {
                 Mail::to($receiver->email)->send(new AnsweredTaskMail($receiver, $task));
             }
         }
