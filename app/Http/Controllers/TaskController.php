@@ -40,7 +40,7 @@ class TaskController extends Controller
             $tasks = Task::orderBy(Request::get('sortBy'), 'DESC')->get();
         }
 
-        return view('tasks.index', compact('tasks'));
+        return view('tasks.index')->withTasks($tasks);
     }
 
     /**
@@ -101,7 +101,7 @@ class TaskController extends Controller
     {
 
         $task = Task::findOrFail($id);
-        return view('tasks.show', compact('task'));
+        return view('tasks.show')->withTask($task);
     }
 
     /**
@@ -113,7 +113,7 @@ class TaskController extends Controller
     public function edit($id)
     {
         $task = Task::findOrFail($id);
-        return view('tasks.edit', compact('task'));
+        return view('tasks.edit')->withTask($task);
     }
 
     /**
