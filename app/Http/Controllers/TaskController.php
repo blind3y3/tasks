@@ -17,6 +17,7 @@ use Storage;
 use Auth;
 use Illuminate\Support\Facades\Mail;
 use DateTime;
+use Request;
 
 class TaskController extends Controller
 {
@@ -35,8 +36,8 @@ class TaskController extends Controller
 
         $tasks = Task::orderBy('id', 'DESC')->get();
 
-        if (!empty($_GET['sortBy'])) {
-            $tasks = Task::orderBy($_GET['sortBy'], 'DESC')->get();
+        if (Request::has('sortBy')) {
+            $tasks = Task::orderBy(Request::get('sortBy'), 'DESC')->get();
         }
 
         return view('tasks.index', compact('tasks'));
