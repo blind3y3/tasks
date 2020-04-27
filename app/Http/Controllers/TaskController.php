@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TaskRequest;
-use App\Mail\AnsweredTaskMail;
 use App\Mail\ClosedTaskMail;
-use App\Mail\AnswerNotificationForManager;
 use App\Mail\ClosingNotificationForManager;
 use App\Task;
 use App\User;
@@ -13,7 +11,6 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
-use Storage;
 use Auth;
 use Illuminate\Support\Facades\Mail;
 use DateTime;
@@ -33,7 +30,6 @@ class TaskController extends Controller
      */
     public function index()
     {
-
         $tasks = Task::orderBy('id', 'DESC')->get();
 
         if (Request::has('sortBy')) {
@@ -61,13 +57,6 @@ class TaskController extends Controller
      */
     public function store(TaskRequest $request)
     {
-
-        $task = new Task();
-        $task->title = $request->title;
-        $task->body = $request->body;
-        $task->author = Auth::user()->name;
-        $task->author_id = Auth::user()->id;
-
         //check if user have tasks
         if (Task::select('created_at')->where('author_id', Auth::id())->count() > 0) {
             $lastUserRecord = Task::select('created_at')->where('author_id', Auth::id());
@@ -81,13 +70,7 @@ class TaskController extends Controller
             }
         }
 
-        if ($request->file('attachment')) {
-            $path = Storage::putFile('public', $request->file('attachment'));
-            $url = Storage::url($path);
-            $task->attachment = $url;
-        }
-
-        $task->save();
+        Task::saveTask($request);
         return redirect('/');
     }
 
@@ -125,33 +108,7 @@ class TaskController extends Controller
      */
     public function update(TaskRequest $request, $id)
     {
-        $task = Task::findOrFail($id);
-        $task->title = $request->title;
-        $task->body = $request->body;
-
-        $receiver = User::findOrFail($task->author_id);
-        $manager = User::select('email')->where('isManager', 1)->get()->first();
-
-        $task->isOpened = $request->has('isOpened');
-        $task->isWatched = $request->has('isWatched');
-        $task->isAnswered = $request->has('isAnswered');
-
-        if ($request->file('attachment')) {
-            $path = Storage::putFile('public', $request->file('attachment'));
-            $url = Storage::url($path);
-            $task->attachment = $url;
-        }
-
-        if ($request->has('answer')) {
-            $task->answer = $request->answer;
-            if ($request->answer != old($task->answer)) {
-                Mail::to($receiver->email)->send(new AnsweredTaskMail($receiver, $task));
-                Mail::to($manager->email)->send(new AnswerNotificationForManager($task));
-            }
-        }
-
-        $task->update();
-
+        Task::updateTask($request, $id);
         return redirect()->route('show', ['id' => $id]);
     }
 
