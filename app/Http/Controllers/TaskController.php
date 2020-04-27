@@ -130,7 +130,7 @@ class TaskController extends Controller
         $task->body = $request->body;
 
         $receiver = User::findOrFail($task->author_id);
-        $manager = User::select('email')->where('isManager', 1)->get()[0]['email'];
+        $manager = User::select('email')->where('isManager', 1)->get()->first();
 
         $task->isOpened = $request->has('isOpened');
         $task->isWatched = $request->has('isWatched');
@@ -146,7 +146,7 @@ class TaskController extends Controller
             $task->answer = $request->answer;
             if ($request->answer != old($task->answer)) {
                 Mail::to($receiver->email)->send(new AnsweredTaskMail($receiver, $task));
-                Mail::to($manager)->send(new AnswerNotificationForManager($task));
+                Mail::to($manager->email)->send(new AnswerNotificationForManager($task));
             }
         }
 
