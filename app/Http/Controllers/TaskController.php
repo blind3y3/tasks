@@ -124,10 +124,10 @@ class TaskController extends Controller
         $task->delete();
 
         $receiver = User::findOrFail($task->author_id);
-        $manager = User::select('email')->where('isManager', 1)->get()[0]['email'];
+        $manager = User::select('email')->where('isManager', 1)->get()->first();
 
         Mail::to($receiver->email)->send(new ClosedTaskMail($receiver, $task));
-        Mail::to($manager)->send(new ClosingNotificationForManager($task));
+        Mail::to($manager->email)->send(new ClosingNotificationForManager($task));
 
         return redirect('/');
     }
